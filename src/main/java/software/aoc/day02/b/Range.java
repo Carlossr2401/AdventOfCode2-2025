@@ -1,4 +1,4 @@
-package software.aoc.day02.a;
+package software.aoc.day02.b;
 
 import java.util.ArrayList;
 
@@ -8,28 +8,15 @@ public record Range(String range) {
         ArrayList<Long> invalidIds =  new ArrayList<>();
 
         for (long i = getStart(); i <= getEnd(); i++) {
-            if (validateNumber(String.valueOf(i))) {
+            if (checkSymetry(String.valueOf(i))) {
                 invalidIds.add(i);
             }
         }
         return invalidIds;
     }
 
-    private Boolean validateNumber(String i) {
-        return divideValue(i);
-    }
-
-    private boolean divideValue(String i) {
-        if (i.length() % 2 != 0) {
-            return false;
-        }
-
-        int halfLength = i.length() / 2;
-
-        String firstSubstring = i.substring(0, halfLength);
-        String secondSustring = i.substring(halfLength);
-
-        return  firstSubstring.equals(secondSustring);
+    private Boolean checkSymetry(String i) {
+        return PatternValidator.isRepeatingSequence(i);
     }
 
     private String[] getRangeLimits() {
