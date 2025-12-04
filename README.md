@@ -1,62 +1,82 @@
-# Advent of Code 2025 - Day 2: Inventory Management System
+# Advent of Code 2025 - Día 2: Sistema de Gestión de Inventario
 
-This repository contains the solution for Day 2 of Advent of Code 2025. The challenge involves identifying "invalid" product IDs within specific ranges based on repeating digit patterns.
+Este repositorio contiene la solución para el Día 2 del Advent of Code 2025. El desafío consiste en identificar IDs de productos "inválidos" dentro de rangos específicos basándose en patrones de dígitos repetidos.
 
-## Problem Description
+## Descripción del Problema
 
-The elves at the North Pole gift shop have accidentally added invalid product IDs to their database. We are provided with a list of ID ranges (e.g., `11-22`, `95-115`) and need to find the sum of all invalid IDs within these ranges.
+Los elfos de la tienda de regalos del Polo Norte han añadido accidentalmente IDs de productos inválidos a su base de datos. Se nos proporciona una lista de rangos de IDs (por ejemplo, `11-22`, `95-115`) y necesitamos encontrar la suma de todos los IDs inválidos dentro de estos rangos.
 
-### Part 1
+### Parte 1
 
-An ID is considered **invalid** if it consists of a sequence of digits repeated exactly **twice**.
+Un ID se considera **inválido** si consiste en una secuencia de dígitos repetida exactamente **dos veces**.
 
-- Examples: `55` (5 repeated twice), `6464` (64 repeated twice).
-- Non-examples: `101` (valid).
+- Ejemplos: `55` (5 repetido dos veces), `6464` (64 repetido dos veces).
+- No ejemplos: `101` (válido).
 
-### Part 2
+### Parte 2
 
-The definition of an invalid ID is expanded. An ID is now **invalid** if it consists of a sequence of digits repeated **at least twice**.
+La definición de un ID inválido se expande. Un ID ahora es **inválido** si consiste en una secuencia de dígitos repetida **al menos dos veces**.
 
-- Examples: `12341234` (1234 twice), `123123123` (123 three times), `1111111` (1 seven times).
+- Ejemplos: `12341234` (1234 dos veces), `123123123` (123 tres veces), `1111111` (1 siete veces).
 
-## Project Structure
+## Estructura del Proyecto
 
-The project is a Java application organized using Maven. The solution is split into two packages for each part of the challenge:
+El proyecto es una aplicación Java organizada usando Maven. La solución está dividida en dos paquetes para cada parte del desafío:
 
-- `src/main/java/software/aoc/day02/a`: Contains the solution for Part 1.
-  - `Main.java`: Entry point, reads ranges and sums invalid IDs.
-  - `Range.java`: Logic to generate numbers in a range and validate them (check if split in half they are equal).
-  - `FileInstructionReader.java`: Helper to read the input file.
-- `src/main/java/software/aoc/day02/b`: Contains the solution for Part 2.
-  - `Main.java`: Entry point for Part 2.
-  - `Range.java`: Logic to generate numbers and delegate validation.
-  - `PatternValidator.java`: Logic to check if a number is formed by _any_ repeating sequence (not just split in half).
+- `src/main/java/software/aoc/day02/a`: Contiene la solución para la Parte 1.
+  - `Main.java`: Punto de entrada, lee los rangos y suma los IDs inválidos.
+  - `Range.java`: Lógica para generar números en un rango y validarlos (comprobar si al dividirlos por la mitad son iguales).
+  - `FileInstructionReader.java`: Ayudante para leer el archivo de entrada.
+- `src/main/java/software/aoc/day02/b`: Contiene la solución para la Parte 2.
+  - `Main.java`: Punto de entrada para la Parte 2.
+  - `Range.java`: Lógica para generar números y delegar la validación.
+  - `PatternValidator.java`: Lógica para comprobar si un número está formado por _cualquier_ secuencia repetida (no solo dividido por la mitad).
 
-## Requirements
+## Requisitos
 
-- Java 21 or higher (uses `record` types).
+- Java 21 o superior (usa tipos `record`).
 - Maven.
 
-## How to Run
+## Cómo Ejecutar
 
-1.  **Input Data**: Ensure your puzzle input is located at `src/main/resources/ranges`. The file should contain comma-separated ranges (e.g., `11-22,95-115`).
+1.  **Datos de Entrada**: Asegúrate de que tu entrada del puzzle esté ubicada en `src/main/resources/ranges`. El archivo debe contener rangos separados por comas (ej. `11-22,95-115`).
 
-2.  **Run Part 1**:
-    You can run the `main` method in `software.aoc.day02.a.Main`.
+2.  **Ejecutar Parte 1**:
+    Puedes ejecutar el método `main` en `software.aoc.day02.a.Main`.
 
-3.  **Run Part 2**:
-    You can run the `main` method in `software.aoc.day02.b.Main`.
+3.  **Ejecutar Parte 2**:
+    Puedes ejecutar el método `main` en `software.aoc.day02.b.Main`.
 
-## Implementation Details
+## Detalles de Implementación
 
-### Part 1 Approach
+### Enfoque Parte 1
 
-For each number in the given ranges, we convert it to a string. We check if the string length is even. If so, we split it into two halves and check if they are identical.
+Para cada número en los rangos dados, lo convertimos a cadena. Comprobamos si la longitud de la cadena es par. Si es así, la dividimos en dos mitades y comprobamos si son idénticas.
 
-### Part 2 Approach
+### Enfoque Parte 2
 
-For each number, we check if it can be formed by repeating a subsequence. We iterate through possible sequence lengths (from 1 up to half the number's length). If the total length is divisible by the sequence length, we repeat the subsequence to see if it reconstructs the original number.
+Para cada número, comprobamos si puede formarse repitiendo una subsecuencia. Iteramos a través de posibles longitudes de secuencia (desde 1 hasta la mitad de la longitud del número). Si la longitud total es divisible por la longitud de la secuencia, repetimos la subsecuencia para ver si reconstruye el número original.
 
-## Author
+## Análisis de Principios de Diseño de Software
 
-Project created for the Software Engineering course (Ingeniería de Software).
+Este proyecto ha sido desarrollado con un enfoque en escribir código limpio y mantenible, adhiriéndose a principios clave de ingeniería de software.
+
+### Modularidad
+
+La solución es altamente modular, con una clara separación de preocupaciones:
+
+- **Estructura de Paquetes**: El código está organizado en paquetes distintos (`a` para la Parte 1, `b` para la Parte 2) para mantener las soluciones independientes mientras comparten una estructura similar.
+- **Separación de Clases**: Clases distintas manejan tareas específicas. Por ejemplo, `FileInstructionReader` maneja la entrada/salida, mientras que `Range` y `PatternValidator` manejan la lógica del dominio. Esto hace que el código sea más fácil de navegar y probar.
+
+### Principio de Responsabilidad Única (SRP)
+
+Cada clase tiene un propósito único y bien definido:
+
+- **`FileInstructionReader`**: Su **única** responsabilidad es leer y analizar el archivo de entrada. No sabe sobre IDs inválidos o matemáticas; solo proporciona los datos crudos.
+- **`PatternValidator` (Parte 2)**: Esta clase es puramente responsable de la lógica algorítmica de comprobar secuencias repetidas. Está desacoplada del objeto `Range` en sí.
+- **`Range`**: Representa los datos de un rango numérico. En la Parte 2, delega la lógica de validación compleja a `PatternValidator`, actuando principalmente como un contenedor de datos y coordinador para sus valores de rango específicos.
+- **`Main`**: Actúa como el orquestador. Une el lector, los objetos de datos y la salida, sin contener la lógica de negocio en sí misma.
+
+## Autor
+
+Proyecto creado para la asignatura de Ingeniería de Software.
