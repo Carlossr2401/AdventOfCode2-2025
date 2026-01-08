@@ -10,7 +10,6 @@ public class PatternValidatorTest {
 
     @Test
     public void testRepeatingTwice() {
-        // Same as symmetric (if < N/2 length pattern)
         assertTrue("1212 should be valid (12 x 2)", validator.isValid(1212));
     }
 
@@ -33,7 +32,6 @@ public class PatternValidatorTest {
 
     @Test
     public void testPrimeLengthNoRepetition() {
-        // 7 digits, no repeating pattern unless it's 1 digit repeated 7 times
         assertFalse("1234567 should be invalid", validator.isValid(1234567));
     }
 }

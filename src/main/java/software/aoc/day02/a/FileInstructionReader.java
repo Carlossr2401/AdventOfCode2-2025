@@ -11,14 +11,12 @@ public record FileInstructionReader(String filePath) implements InstructionReade
     @Override
     public List<String> readAllInstructions() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            return reader.lines()              // Flujo de líneas (Java 8+)
+            return reader.lines()
                          .flatMap(line -> parseLine(line).stream()) 
                          .toList();
         }
     }
 
-    // Este método es el candidato a SRP. 
-    // Podría incluso estar en una clase "InstructionParser" si el parseo fuera complejo.
     private List<String> parseLine(String line) {
         if (line == null || line.isBlank()) return List.of();
         
