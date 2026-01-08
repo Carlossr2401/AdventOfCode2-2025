@@ -3,38 +3,28 @@ package software.aoc.day02.a;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public record FileInstructionReader(String filePath) {
+public record FileInstructionReader(String filePath) implements InstructionReader {
 
-    public ArrayList<String> readAllInstructions() throws IOException {
-        ArrayList<String> instructions = new ArrayList<>();
-
+    @Override
+    public List<String> readAllInstructions() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                instructions.addAll(parseLine(line));
-            }
+            return reader.lines()              // Flujo de líneas (Java 8+)
+                         .flatMap(line -> parseLine(line).stream()) 
+                         .toList();
         }
-
-        return instructions;
     }
 
-    private ArrayList<String> parseLine(String line) {
-        ArrayList<String> values = new ArrayList<>();
-        String trimmedLine = line.trim();
-
-        if (trimmedLine.isEmpty()) {
-            return values;
-        }
-
-        String[] parts = trimmedLine.split(",");
-
-        for (String part : parts) {
-            values.add(part.trim());
-        }
-
-        return values;
+    // Este método es el candidato a SRP. 
+    // Podría incluso estar en una clase "InstructionParser" si el parseo fuera complejo.
+    private List<String> parseLine(String line) {
+        if (line == null || line.isBlank()) return List.of();
+        
+        return Arrays.stream(line.split(","))
+                     .map(String::trim)
+                     .filter(s -> !s.isEmpty())
+                     .toList();
     }
 }

@@ -1,27 +1,15 @@
 package software.aoc.day02.b;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
+
 
 public class Main {
 
-    static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
+        InstructionReader reader = new FileInstructionReader("src/main/resources/ranges");
+        Solver solver = new Solver(reader);
+        long result = solver.solve();
 
-        FileInstructionReader reader = new FileInstructionReader("src/main/resources/ranges");
-        ArrayList<String> lista = reader.readAllInstructions();
-
-        AtomicLong addition = new AtomicLong(0);
-
-        lista.forEach(range -> {
-            long sumOfRange = sumList(new Range(range).checkInvalidIds());
-            addition.addAndGet(sumOfRange);
-        });
-
-        System.out.println("Suma total de IDs inválidos: " + addition.get());
-    }
-
-    private static long sumList(ArrayList<Long> numbers) {
-        return numbers.stream().mapToLong(Long::longValue).sum();
+        System.out.println("Suma total de IDs inválidos (Parte 2): " + result);
     }
 }

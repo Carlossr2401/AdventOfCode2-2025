@@ -1,6 +1,11 @@
 package software.aoc.day02.b;
 
-public class PatternValidator {
+public class PatternValidator implements IdValidator {
+
+    @Override
+    public boolean isValid(long id) {
+        return isRepeatingSequence(String.valueOf(id));
+    }
 
     public static boolean isRepeatingSequence(String numberAsString) {
         int length = numberAsString.length();

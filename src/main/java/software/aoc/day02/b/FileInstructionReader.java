@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public record FileInstructionReader(String filePath) {
+public record FileInstructionReader(String filePath) implements InstructionReader {
 
     public ArrayList<String> readAllInstructions() throws IOException {
         ArrayList<String> instructions = new ArrayList<>();

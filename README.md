@@ -32,51 +32,114 @@ El proyecto es una aplicación Java organizada usando Maven. La solución está 
   - `Range.java`: Lógica para generar números y delegar la validación.
   - `PatternValidator.java`: Lógica para comprobar si un número está formado por _cualquier_ secuencia repetida (no solo dividido por la mitad).
 
-## Requisitos
+## Arquitectura y Principios de Diseño
 
-- Java 21 o superior (usa tipos `record`).
-- Maven.
+El diseño de la solución se basa en la modularidad y la claridad, aplicando principios de ingeniería de software para asegurar que el código sea mantenible, testeable y extensible.
 
-## Cómo Ejecutar
+### Diagramas de Clases
 
-1.  **Datos de Entrada**: Asegúrate de que tu entrada del puzzle esté ubicada en `src/main/resources/ranges`. El archivo debe contener rangos separados por comas (ej. `11-22,95-115`).
+#### Parte 1: Simetría Estricta
 
-2.  **Ejecutar Parte 1**:
-    Puedes ejecutar el método `main` en `software.aoc.day02.a.Main`.
+```mermaid
+classDiagram
+    direction TB
+    class Main {
+        +main(args: String[])
+    }
+    class Solver {
+        -reader: InstructionReader
+        +solve(): long
+    }
+    class InstructionReader {
+        <<interface>>
+        +readAllInstructions(): List~String~
+    }
+    class FileInstructionReader {
+        +filePath: String
+        +readAllInstructions(): List~String~
+    }
+    class IdValidator {
+        <<interface>>
+        +isValid(id: long): boolean
+    }
+    class SymmetryValidator {
+        +isValid(id: long): boolean
+    }
+    class Range {
+        <<record>>
+        +start: long
+        +end: long
+        +fromString(range: String): Range
+    }
 
-3.  **Ejecutar Parte 2**:
-    Puedes ejecutar el método `main` en `software.aoc.day02.b.Main`.
+    Main ..> Solver : usa
+    Solver --> InstructionReader : depende de
+    Solver ..> IdValidator : usa
+    Solver ..> Range : crea
+    FileInstructionReader ..|> InstructionReader : implementa
+    SymmetryValidator ..|> IdValidator : implementa
+```
 
-## Detalles de Implementación
+#### Parte 2: Patrones Repetidos
 
-### Enfoque Parte 1
+```mermaid
+classDiagram
+    direction TB
+    class Main {
+        +main(args: String[])
+    }
+    class Solver {
+        -reader: InstructionReader
+        +solve(): long
+    }
+    class InstructionReader {
+        <<interface>>
+        +readAllInstructions(): List~String~
+    }
+    class FileInstructionReader {
+        +readAllInstructions(): List~String~
+    }
+    class IdValidator {
+        <<interface>>
+        +isValid(id: long): boolean
+    }
+    class PatternValidator {
+        +isValid(id: long): boolean
+        +isRepeatingSequence(s: String): boolean
+    }
+    class Range {
+        <<record>>
+        +start: long
+        +end: long
+        +fromString(range: String): Range
+    }
 
-Para cada número en los rangos dados, lo convertimos a cadena. Comprobamos si la longitud de la cadena es par. Si es así, la dividimos en dos mitades y comprobamos si son idénticas.
+    Main ..> Solver : usa
+    Solver --> InstructionReader : depende de
+    Solver ..> IdValidator : usa
+    Solver ..> Range : crea
+    FileInstructionReader ..|> InstructionReader : implementa
+    PatternValidator ..|> IdValidator : implementa
+```
 
-### Enfoque Parte 2
+### Principios SOLID aplicados
 
-Para cada número, comprobamos si puede formarse repitiendo una subsecuencia. Iteramos a través de posibles longitudes de secuencia (desde 1 hasta la mitad de la longitud del número). Si la longitud total es divisible por la longitud de la secuencia, repetimos la subsecuencia para ver si reconstruye el número original.
+- **Single Responsibility Principle (SRP)**:
 
-## Análisis de Principios de Diseño de Software
+  - `Solver`: Orquestador puro. No sabe cómo leer archivos ni cómo validar. Solo coordina.
+  - `FileInstructionReader`: Se encarga exclusivamente de interactuar con el sistema de archivos.
+  - `Range`: Es un record, sin lógica de validación ni bucles.
+  - `SymmetryValidator` / `PatternValidator`: Encapsulan la lógica pura de negocio para cada regla específica.
 
-Este proyecto ha sido desarrollado con un enfoque en escribir código limpio y mantenible, adhiriéndose a principios clave de ingeniería de software.
+- **Dependency Inversion Principle (DIP)**:
 
-### Modularidad
+  - La clase `Solver` depende de la abstracción (interfaz) `InstructionReader`, no de la implementación concreta `FileInstructionReader`. Esto permite cambiar el origen de datos (e.g., a una API Mock) sin tocar la lógica del solver.
 
-La solución es altamente modular, con una clara separación de preocupaciones:
+- **Open/Closed Principle (OCP)**:
+  - Gracias a la interfaz `IdValidator`, es posible añadir nuevas reglas de validación creando nuevas clases que implementen la interfaz, sin modificar el código existente en `Solver`.
 
-- **Estructura de Paquetes**: El código está organizado en paquetes distintos (`a` para la Parte 1, `b` para la Parte 2) para mantener las soluciones independientes mientras comparten una estructura similar.
-- **Separación de Clases**: Clases distintas manejan tareas específicas. Por ejemplo, `FileInstructionReader` maneja la entrada/salida, mientras que `Range` y `PatternValidator` manejan la lógica del dominio. Esto hace que el código sea más fácil de navegar y probar.
+### Clean Code y Decisiones Técnicas
 
-### Principio de Responsabilidad Única (SRP)
-
-Cada clase tiene un propósito único y bien definido:
-
-- **`FileInstructionReader`**: Su **única** responsabilidad es leer y analizar el archivo de entrada. No sabe sobre IDs inválidos o matemáticas; solo proporciona los datos crudos.
-- **`PatternValidator` (Parte 2)**: Esta clase es puramente responsable de la lógica algorítmica de comprobar secuencias repetidas. Está desacoplada del objeto `Range` en sí.
-- **`Range`**: Representa los datos de un rango numérico. En la Parte 2, delega la lógica de validación compleja a `PatternValidator`, actuando principalmente como un contenedor de datos y coordinador para sus valores de rango específicos.
-- **`Main`**: Actúa como el orquestador. Une el lector, los objetos de datos y la salida, sin contener la lógica de negocio en sí misma.
-
-## Autor
-
-Proyecto creado para la asignatura de Ingeniería de Software.
+- **Inmutabilidad**: Uso de `record` para `Range` y `FileInstructionReader`.
+- **Streams Declarativos**: Uso de `java.util.stream` para un flujo de datos legible y eficiente.
+- **Separación de Preocupaciones**: La lógica de "qué es un rango" está separada de "qué es un ID válido".
