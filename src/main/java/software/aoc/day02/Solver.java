@@ -1,21 +1,21 @@
-package software.aoc.day02.b;
+package software.aoc.day02;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Solver {
+public abstract class Solver {
 
-    private final InstructionReader reader;
+    protected final InstructionReader reader;
+    protected final IdValidator validator;
 
-    public Solver(InstructionReader reader) {
+    public Solver(InstructionReader reader, IdValidator validator) {
         this.reader = reader;
+        this.validator = validator;
     }
-
 
     public long solve() throws IOException {
         List<String> lista = reader.readAllInstructions();
-        IdValidator validator = new PatternValidator();
         AtomicLong addition = new AtomicLong(0);
 
         lista.forEach(line -> {
@@ -28,5 +28,4 @@ public class Solver {
 
         return addition.get();
     }
-
 }

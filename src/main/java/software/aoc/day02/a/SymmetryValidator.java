@@ -1,5 +1,7 @@
 package software.aoc.day02.a;
 
+import software.aoc.day02.IdValidator;
+
 public class SymmetryValidator implements IdValidator {
 
     @Override

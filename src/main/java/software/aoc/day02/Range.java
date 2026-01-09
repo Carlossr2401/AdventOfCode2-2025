@@ -1,7 +1,4 @@
-package software.aoc.day02.b;
-
-
-
+package software.aoc.day02;
 
 public record Range(long start, long end) {
 

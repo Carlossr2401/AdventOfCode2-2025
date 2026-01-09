@@ -1,145 +1,122 @@
 # Advent of Code 2025 - Día 2: Sistema de Gestión de Inventario
 
-Este repositorio contiene la solución para el Día 2 del Advent of Code 2025. El desafío consiste en identificar IDs de productos "inválidos" dentro de rangos específicos basándose en patrones de dígitos repetidos.
+Este proyecto contiene la solución para el **Día 2** del Advent of Code 2025. El desafío consiste en identificar IDs de productos "inválidos" dentro de rangos específicos basándose en patrones de dígitos repetidos.
 
-## Descripción del Problema
+## Diseño y Arquitectura
 
-Los elfos de la tienda de regalos del Polo Norte han añadido accidentalmente IDs de productos inválidos a su base de datos. Se nos proporciona una lista de rangos de IDs (por ejemplo, `11-22`, `95-115`) y necesitamos encontrar la suma de todos los IDs inválidos dentro de estos rangos.
+En este proyecto se aplican estrictamente los principios SOLID y Clean Code, junto con patrones de diseño estratégicos para garantizar un código mantenible, extensible y testeable.
 
-### Parte 1
+### 1. Principios SOLID
 
-Un ID se considera **inválido** si consiste en una secuencia de dígitos repetida exactamente **dos veces**.
+- **Single Responsibility Principle (SRP)**:
+  - `ReaderFactory` y `SolverFactory`: Responsables únicamente de la creación de objetos.
+  - `FileInstructionReader`: Responsable de la lectura de archivos.
+  - `SolverA` / `SolverB`: Coordinan la lógica específica para cada parte del problema (estrategias concretas).
+  - `SymmetryValidator` / `PatternValidator`: Encapsulan la lógica de validación de negocio.
+- **Open/Closed Principle (OCP)**:
+  - El sistema es extensible mediante interfaces y clases abstractas. Se pueden agregar nuevos tipos de `InstructionReader` o nuevas implementaciones de `Solver` sin modificar el código existente en `Main` o en las lógicas bases.
+  - Para agregar una nueva regla de validación, basta con crear una nueva implementación de `IdValidator`.
+- **Liskov Substitution Principle (LSP)**:
+  - `SolverA` y `SolverB` son intercambiables a través de la clase abstracta `Solver`.
+  - `FileInstructionReader` puede ser sustituido por cualquier otra implementación de `InstructionReader` sin romper el sistema.
+- **Interface Segregation Principle (ISP)**:
+  - Las interfaces `InstructionReader` e `IdValidator` son específicas y definen contratos claros sin métodos innecesarios.
+- **Dependency Inversion Principle (DIP)**:
+  - Los módulos de alto nivel (`Main`, `SolverA`, `SolverB`) dependen de abstracciones (`Solver`, `InstructionReader`, `IdValidator`), no de implementaciones concretas.
 
-- Ejemplos: `55` (5 repetido dos veces), `6464` (64 repetido dos veces).
-- No ejemplos: `101` (válido).
+### 2. Patrones de Diseño
 
-### Parte 2
+Se han implementado patrones de diseño para resolver problemas de creación y comportamiento:
 
-La definición de un ID inválido se expande. Un ID ahora es **inválido** si consiste en una secuencia de dígitos repetida **al menos dos veces**.
+- **Strategy Pattern (Estrategia)**:
 
-- Ejemplos: `12341234` (1234 dos veces), `123123123` (123 tres veces), `1111111` (1 siete veces).
+  - La clase abstracta `Solver` define la estructura del algoritmo (`solve`), delegando la validación específica a la estrategia `IdValidator` inyectada.
+  - `SolverA` y `SolverB` actúan como estrategias concretas de solución que configuran el entorno para cada parte del problema.
+  - `SymmetryValidator` y `PatternValidator` son estrategias de validación intercambiables.
 
-## Estructura del Proyecto
+- **Factory Pattern (Fábrica)**:
 
-El proyecto es una aplicación Java organizada usando Maven. La solución está dividida en dos paquetes para cada parte del desafío:
+  - `SolverFactory`: Centraliza la creación de los Solvers. Basado en un parámetro (`SolverType`), decide qué estrategia de solver instanciar e inyecta las dependencias necesarias.
+  - `ReaderFactory`: Abstrae la creación del lector de instrucciones, facilitando cambios futuros en el origen de datos.
 
-- `src/main/java/software/aoc/day02/a`: Contiene la solución para la Parte 1.
-  - `Main.java`: Punto de entrada, lee los rangos y suma los IDs inválidos.
-  - `Range.java`: Lógica para generar números en un rango y validarlos (comprobar si al dividirlos por la mitad son iguales).
-  - `FileInstructionReader.java`: Ayudante para leer el archivo de entrada.
-- `src/main/java/software/aoc/day02/b`: Contiene la solución para la Parte 2.
-  - `Main.java`: Punto de entrada para la Parte 2.
-  - `Range.java`: Lógica para generar números y delegar la validación.
-  - `PatternValidator.java`: Lógica para comprobar si un número está formado por _cualquier_ secuencia repetida (no solo dividido por la mitad).
+- **Dependency Injection**:
+  - Las dependencias (`InstructionReader`, `IdValidator`) se inyectan en los constructores de los Solvers.
 
-## Arquitectura y Principios de Diseño
-
-El diseño de la solución se basa en la modularidad y la claridad, aplicando principios de ingeniería de software para asegurar que el código sea mantenible, testeable y extensible.
-
-### Diagramas de Clases
-
-#### Parte 1: Simetría Estricta
+### 3. Diagrama de Arquitectura
 
 ```mermaid
 classDiagram
-    direction TB
     class Main {
-        +main(args: String[])
-    }
-    class Solver {
-        -reader: InstructionReader
-        +solve(): long
-    }
-    class InstructionReader {
-        <<interface>>
-        +readAllInstructions(): List~String~
-    }
-    class FileInstructionReader {
-        +filePath: String
-        +readAllInstructions(): List~String~
-    }
-    class IdValidator {
-        <<interface>>
-        +isValid(id: long): boolean
-    }
-    class SymmetryValidator {
-        +isValid(id: long): boolean
-    }
-    class Range {
-        <<record>>
-        +start: long
-        +end: long
-        +fromString(range: String): Range
+        +main() void$
     }
 
-    Main ..> Solver : usa
-    Solver --> InstructionReader : depende de
-    Solver ..> IdValidator : usa
-    Solver ..> Range : crea
+    class SolverFactory {
+        +createSolver(type: SolverType, filePath: String) Solver$
+    }
+
+    class ReaderFactory {
+        +createReader(filePath: String) InstructionReader$
+    }
+
+    class Solver {
+        <<Abstract>>
+        #reader: InstructionReader
+        #validator: IdValidator
+        +solve() long
+    }
+
+    class SolverA {
+        +SolverA(reader: InstructionReader, validator: IdValidator)
+    }
+
+    class SolverB {
+        +SolverB(reader: InstructionReader, validator: IdValidator)
+    }
+
+    class InstructionReader {
+        <<Interface>>
+        +readAllInstructions() List~String~
+    }
+
+    class IdValidator {
+        <<Interface>>
+        +isValid(id: long) boolean
+    }
+
+    class FileInstructionReader {
+        <<Record>>
+        +readAllInstructions() List~String~
+    }
+
+    class SymmetryValidator {
+        +isValid(id: long) boolean
+    }
+
+    class PatternValidator {
+        +isValid(id: long) boolean
+    }
+
+    Main ..> SolverFactory : usa
+    SolverFactory ..> ReaderFactory : usa
+    SolverFactory ..> Solver : crea
+    SolverFactory ..> SolverA : instancia
+    SolverFactory ..> SolverB : instancia
+
+    SolverA --|> Solver : extiende
+    SolverB --|> Solver : extiende
+
+    Solver --> InstructionReader : usa
+    Solver --> IdValidator : usa
+
     FileInstructionReader ..|> InstructionReader : implementa
     SymmetryValidator ..|> IdValidator : implementa
-```
-
-#### Parte 2: Patrones Repetidos
-
-```mermaid
-classDiagram
-    direction TB
-    class Main {
-        +main(args: String[])
-    }
-    class Solver {
-        -reader: InstructionReader
-        +solve(): long
-    }
-    class InstructionReader {
-        <<interface>>
-        +readAllInstructions(): List~String~
-    }
-    class FileInstructionReader {
-        +readAllInstructions(): List~String~
-    }
-    class IdValidator {
-        <<interface>>
-        +isValid(id: long): boolean
-    }
-    class PatternValidator {
-        +isValid(id: long): boolean
-        +isRepeatingSequence(s: String): boolean
-    }
-    class Range {
-        <<record>>
-        +start: long
-        +end: long
-        +fromString(range: String): Range
-    }
-
-    Main ..> Solver : usa
-    Solver --> InstructionReader : depende de
-    Solver ..> IdValidator : usa
-    Solver ..> Range : crea
-    FileInstructionReader ..|> InstructionReader : implementa
     PatternValidator ..|> IdValidator : implementa
 ```
 
-### Principios SOLID aplicados
+### 4. Estructura del Proyecto
 
-- **Single Responsibility Principle (SRP)**:
+La estructura de paquetes refleja la separación de responsabilidades:
 
-  - `Solver`: Orquestador puro. No sabe cómo leer archivos ni cómo validar. Solo coordina.
-  - `FileInstructionReader`: Se encarga exclusivamente de interactuar con el sistema de archivos.
-  - `Range`: Es un record, sin lógica de validación ni bucles.
-  - `SymmetryValidator` / `PatternValidator`: Encapsulan la lógica pura de negocio para cada regla específica.
-
-- **Dependency Inversion Principle (DIP)**:
-
-  - La clase `Solver` depende de la abstracción (interfaz) `InstructionReader`, no de la implementación concreta `FileInstructionReader`. Esto permite cambiar el origen de datos (e.g., a una API Mock) sin tocar la lógica del solver.
-
-- **Open/Closed Principle (OCP)**:
-  - Gracias a la interfaz `IdValidator`, es posible añadir nuevas reglas de validación creando nuevas clases que implementen la interfaz, sin modificar el código existente en `Solver`.
-
-### Clean Code y Decisiones Técnicas
-
-- **Inmutabilidad**: Uso de `record` para `Range` y `FileInstructionReader`.
-- **Streams Declarativos**: Uso de `java.util.stream` para un flujo de datos legible y eficiente.
-- **Separación de Preocupaciones**: La lógica de "qué es un rango" está separada de "qué es un ID válido".
+- `software.aoc.day02`: Clases base abstractas, interfaces comunes y fábricas (`Solver`, `SolverFactory`, `ReaderFactory`, `IdValidator`, etc.).
+- `software.aoc.day02.a`: Implementación concreta para la Parte 1 (`SolverA`, `SymmetryValidator`).
+- `software.aoc.day02.b`: Implementación concreta para la Parte 2 (`SolverB`, `PatternValidator`).

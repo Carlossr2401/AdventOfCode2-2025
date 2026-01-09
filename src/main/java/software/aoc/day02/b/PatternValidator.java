@@ -1,5 +1,7 @@
 package software.aoc.day02.b;
 
+import software.aoc.day02.IdValidator;
+
 public class PatternValidator implements IdValidator {
 
     @Override

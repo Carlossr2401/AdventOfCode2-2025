@@ -1,6 +1,8 @@
 package software.aoc.day02.a;
 
 import org.junit.Test;
+import software.aoc.day02.Range;
+
 import static org.junit.Assert.assertEquals;
 
 public class RangeTest {
